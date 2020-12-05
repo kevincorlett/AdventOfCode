@@ -33,7 +33,7 @@ int run(char *file, long fileLength)
    }
 
    return maxSeatNumber;
-}
+}  
 
 int main()
 {

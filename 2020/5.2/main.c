@@ -3,13 +3,13 @@
 #include <stdlib.h>
 #include "../../utils.h"
 
-int i, j, seatNumber, maxSeatNumber;
+int i, j, seatNumber, emptySeat;
 u_char col, row;
+int seats[1024];
 
 int run(char *file, long fileLength)
 {
-   maxSeatNumber = 0;
-
+   emptySeat = 0;
    while (i < fileLength)
    {
       col = row = 0;
@@ -25,14 +25,17 @@ int run(char *file, long fileLength)
             col |= j;
       }
 
-      seatNumber = (row*8) + col;
-      if (seatNumber > maxSeatNumber)
-         maxSeatNumber = seatNumber;
+      seatNumber = (row * 8) + col;
+      seats[seatNumber] = 1;
 
       i++;
    }
 
-   return maxSeatNumber;
+   for (int i=9;i<1014;i++)
+      if (!seats[i] && seats[i-1] && seats[i+1])
+         return i;
+
+   return -1;
 }
 
 int main()
