@@ -11,10 +11,10 @@ int findNextBlank(char *file, long fileLength, int index){
    return index;
 }
 
-char *readStdIn(size_t *fileLength)
+char* readStdIn(size_t *fileLength)
 {
    const long CHUNK_SIZE = 102400;
-   char *buffer = malloc(0);
+   char* buffer = malloc(0);
    size_t length = 0;
    size_t read = 0;
    do
