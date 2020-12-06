@@ -3,12 +3,11 @@
 #include <stdlib.h>
 #include "../../utils.h"
 
-void findSeats(char *file, long fileLength, int *maxSeatNumber, int *mySeatNumber)
+void findSeats(char* file, long fileLength, int* maxSeatNumber, int* mySeatNumber)
 {
    u_char seats[1024] = {0};
-   int i = 0, j = 512, seatNumber = 0;
+   int i = 0, j = 512, seatNumber = 0, max = 0, my = 0;
 
-   *maxSeatNumber = 0;
    while (i < fileLength)
    {
       if (file[i] == 'B' || file[i] == 'R')
@@ -17,8 +16,8 @@ void findSeats(char *file, long fileLength, int *maxSeatNumber, int *mySeatNumbe
       j >>= 1;
       i++;
       if ((i+1)%11 == 0){
-         if (seatNumber > *maxSeatNumber)
-            *maxSeatNumber = seatNumber;
+         if (seatNumber > max)
+            max = seatNumber;
          
          seats[seatNumber] = 1;
          seatNumber = 0;
@@ -27,10 +26,13 @@ void findSeats(char *file, long fileLength, int *maxSeatNumber, int *mySeatNumbe
       }
    }
 
-   *mySeatNumber = 0;
-   for (i = 9; *mySeatNumber == 0 && i < 1014; i++)
+   my = 0;
+   for (i = 9; my == 0 && i < 1014; i++)
       if (!seats[i] && seats[i - 1] && seats[i + 1])
-         *mySeatNumber = i;
+         my = i;
+
+   *maxSeatNumber = max;
+   *mySeatNumber = my;
 }
 
 int main()

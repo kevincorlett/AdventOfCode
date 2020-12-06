@@ -4,74 +4,44 @@
 #include <stdint.h>
 #include "../../utils.h"
 
-void countAnswers(char *file, long fileLength, int *answerCount)
+int countAnswers(char* file, long fileLength)
 {
-   int i = 0, j = 0, groupSize = 0;
-   u_int32_t letterValues[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, 33554432};
-   u_int32_t groupMembers[1024] = {0};
+   const u_int32_t letterBits[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, 33554432};
+   const u_int32_t bits_26 = 67108863; //26 LSBs set high
+
+   int i = 0; //the current char index
+   int n = 0; //this will be returned
+   
+   u_int32_t groupAnswers = bits_26; //set all high because they'll be and-ed
+   
+   u_int32_t memberAnswers = 0; //set all low because they'll be or-ed
 
    while (i < fileLength)
    {
-      groupMembers[groupSize] |= letterValues[file[i] - 'a']; //store a bit for the letter
+      memberAnswers |= letterBits[file[i] - 'a']; //set the bit that corresponds to the current char
 
-      if (++i == fileLength || (file[i] == '\n')) //EOF or \n means end of member
+      if (++i == fileLength || (file[i] == '\n')) //end of member
       {
-         groupMembers[++groupSize] = 0; //move to and initialise the next member
-
-         if (i == fileLength || file[++i] == '\n') //EOF or another \n means end of group
+         groupAnswers &= memberAnswers;  //combine the member's answers into the group answers
+         
+         memberAnswers = 0;  //reset the member answers
+         if (i == fileLength || file[++i] == '\n') //end of group
          {
-            //combine all the members' bits
-            for (j = 1; j < groupSize; j++)
+            while (groupAnswers > 0)  //check for bit-letters that are present
             {
-               groupMembers[0] &= groupMembers[j];
+               if (groupAnswers & 1)
+                  n++;
+
+               groupAnswers >>= 1;
             }
-            //check for bit-letters that are present
-            for (j = 0; j < 26; j++)
-            {
-               if (groupMembers[0] & letterValues[j]){
-                  (*answerCount)++;
-               }
-            }
-            //reinitialise the group
-            groupSize = 0;
-            groupMembers[0] = 0;
-            //move to next char
-            i++;
+            
+            groupAnswers = bits_26;  //reset the group answers
+            
+            i++; //move to next char
          }
       }
    }
-}
-
-void _countAnswers(char *file, long fileLength, int *answerCount)
-{
-   int i = 0, j = 0;
-   int lettersFound[26] = {0};
-   int groupSize = 0;
-
-   while (i < fileLength)
-   {
-      j = file[i] - 'a';
-
-      lettersFound[j]++;
-
-      if (++i == fileLength || (file[i] == '\n'))
-      {
-         groupSize++;
-         if (i == fileLength || file[++i] == '\n')
-         {
-            for (j = 0; j < 26; j++)
-            {
-               // printf("%c=%i ", j+97, lettersFound[j]);
-               if (lettersFound[j] == groupSize)
-                  (*answerCount)++;
-               lettersFound[j] = 0;
-            }
-            // printf("groupSize=%i\n", groupSize);
-            groupSize = 0;
-            i++;
-         }
-      }
-   }
+   return n;
 }
 
 int main()
@@ -88,7 +58,7 @@ int main()
    endReadStdIn = clock();
 
    startCalc = clock();
-   countAnswers(file, fileLength, &answerCount);
+   answerCount = countAnswers(file, fileLength);
    endCalc = clock();
 
    printf("answerCount=%i\n\n", answerCount);
