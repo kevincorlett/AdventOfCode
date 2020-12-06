@@ -12,9 +12,7 @@ void findSeats(char *file, long fileLength, int *maxSeatNumber, int *mySeatNumbe
    while (i < fileLength)
    {
       if (file[i] == 'B' || file[i] == 'R')
-      {
          seatNumber |= j;
-      }
 
       j >>= 1;
       i++;
@@ -32,9 +30,7 @@ void findSeats(char *file, long fileLength, int *maxSeatNumber, int *mySeatNumbe
    *mySeatNumber = 0;
    for (i = 9; *mySeatNumber == 0 && i < 1014; i++)
       if (!seats[i] && seats[i - 1] && seats[i + 1])
-      {
          *mySeatNumber = i;
-      }
 }
 
 int main()
