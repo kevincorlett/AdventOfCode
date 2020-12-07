@@ -11,6 +11,16 @@ int findNextBlank(char *file, long fileLength, int index){
    return index;
 }
 
+//finds the next instance of a particular char in a char array
+//returns fileLength if not found
+int findNextChar(char *file, long fileLength, int index, char find){
+
+   while (file[index] != find && index < fileLength)
+      index++;
+
+   return index;
+}
+
 char* readStdIn(size_t *fileLength)
 {
    const long CHUNK_SIZE = 102400;
