@@ -1,16 +1,18 @@
 const fs = require('fs');
-const data = fs.readFileSync("./test.txt").toString();
+const data = fs.readFileSync("./input.txt").toString();
 
 const hrstart = process.hrtime.bigint();
 
-const allRules = {};
+const allBags = {};
 
-// const matches = data.match(/(\d+\s)?([a-z]+\s[a-z]+)\sbags?/gm);
+const goldName = 'shiny gold';
+
+//first pass - extract the data
 const matches = data.match(/(\d+|[a-z]+ [a-z]+|\.)/gm);
 let i = 0;
 while (i < matches.length) {
-    const container = matches[i];
-    console.log(container);
+    const name = matches[i];
+
     const rules = [];
     i += 2;
 
@@ -19,7 +21,6 @@ while (i < matches.length) {
     }
 
     while (matches[i] != ".") {
-        console.log(matches[i], matches[i + 1]);
         rules.push({
             number: parseInt(matches[i]),
             colour: matches[i + 1]
@@ -29,14 +30,23 @@ while (i < matches.length) {
 
     i++;
 
-    allRules[container] = rules;
+    allBags[name] = { name, rules };
 }
 
-for(const r in allRules){
-    console.log(r, allRules[r]);
+//2nd pass - hook up the relationships
+for (const r in allBags) {
+    allBags[r].rules = allBags[r].rules.map(x => ({ number: x.number, colour: allBags[x.colour] }));
+}
+
+//3rd pass - dig for gold!
+const hasGoldTotal = Object.values(allBags).reduce((x,y) => { return hasGold(y) ? x+1 : x; },0);
+
+function hasGold(c) {
+    return c.hasOwnProperty('hasGold') ? c.hasGold : (c.hasGold = (c == allBags[goldName] || c.rules.some(r => hasGold(r.colour))));
 }
 
 const hrend = process.hrtime.bigint() - hrstart;
 
-// console.log(`There are ${goodPsps.length} valid passports`);
+//gold itself is included in the result
+console.log("result",hasGoldTotal-1);
 console.log(hrend / 1000n, 'μs');
