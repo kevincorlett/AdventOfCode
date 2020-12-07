@@ -1,7 +1,7 @@
 const fs = require('fs');
-const data = fs.readFileSync("./input.txt").toString();
-
 const hrstart = process.hrtime.bigint();
+const data = fs.readFileSync("./input.txt").toString();
+const hrload = process.hrtime.bigint();
 
 const allBags = {};
 
@@ -62,7 +62,9 @@ const hrPass4 = process.hrtime.bigint();
 
 console.log("Bags that contain a gold one:", hasGoldTotal);
 console.log("Bags inside the gold bag:", bagsInside);
-console.log("Parse\t\t",(hrPass1-hrstart) / 1000n, "μs");
+console.log("Load\t\t", (hrload-hrstart)/1000n, "μs")
+console.log("Parse\t\t",(hrPass1-hrload) / 1000n, "μs");
 console.log("Link\t\t",(hrPass2-hrPass1) / 1000n, "μs");
 console.log("Dig for gold\t",(hrPass3-hrPass2) / 1000n, "μs");
 console.log("Count the bags\t",(hrPass4-hrPass3) / 1000n, "μs");
+console.log("Total\t\t",(hrPass4-hrstart) / 1000n, "μs");
