@@ -25,7 +25,7 @@ struct BagsInside
 struct Bag
 {
    struct Colour colour;
-   struct BagsInside children[100]; //max 100 children per bag should be enough
+   struct BagsInside children[10]; //max 10 children per bag should be enough
    int bagsInsideLength;
    int hasGold;
    int totalBagsInside;
