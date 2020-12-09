@@ -7,6 +7,8 @@ const hrload = process.hrtime.bigint();
 const allNumbers = data.split('\n').map(x => parseInt(x));
 const hrParse = process.hrtime.bigint();
 
+///////////////// PART 1 \\\\\\\\\\\\\\\\\\\\
+
 const preamble = 25;
 const numbersInPreamble = {};
 
@@ -27,28 +29,26 @@ for (let i = preamble; i < allNumbers.length; i++) {
         result1 = current;
         break;
     }
-    delete numbersInPreamble[allNumbers[i-preamble]];
+    delete numbersInPreamble[allNumbers[i - preamble]];
     numbersInPreamble[current] = true;
 }
 
 hrpart1 = process.hrtime.bigint();
 
+///////////////// PART 2 \\\\\\\\\\\\\\\\\\\\
 
-let start = 0, end = 1, sum = allNumbers[0]+allNumbers[1];
-const range = {};
-range[allNumbers[0]] = true;
-range[allNumbers[1]] = true;
+let start = 0, end = 1, sum = allNumbers[0] + allNumbers[1];
 
-while (sum !== result1 && end < allNumbers.length){
-    if (sum < result1){
+while (sum !== result1 && end) {
+    if (sum < result1)
         sum += allNumbers[++end];
-        range[allNumbers[end]] = true;
-    } else {
-        delete range[allNumbers[start]];
+    else
         sum -= allNumbers[start++];
-    }
 }
-const result2 = parseInt(Object.keys(range)[0]) + parseInt(Object.keys(range).pop());
+const sorted = allNumbers.slice(start, end).sort();
+const result2 = sorted[0] + sorted[sorted.length - 1];
+
+
 
 const hrpart2 = process.hrtime.bigint();
 
