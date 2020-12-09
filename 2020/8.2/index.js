@@ -4,51 +4,57 @@ const hrstart = process.hrtime.bigint();
 const data = fs.readFileSync("./test.txt").toString();
 const hrload = process.hrtime.bigint();
 
-const items = data.split('\n').map(x => ({ op: x.substring(0, 3), value: parseInt(x.substring(4)), done: false }));
+const items = data.split('\n').map(x => ({ op: x.substring(0, 3), value: parseInt(x.substring(4)), done: 0, flipped: false }));
 const hrParse = process.hrtime.bigint();
 
-// find the last backward jump:
-// 1) any item after this will take us to the end of the program
-// 2) this is the last jmp that could possibly be switched to a nop
-let lastBackJmpIndex;
-for (let i = items.length - 1; i > -1; i--) {
-    if (items[i].op == 'jmp' && items[i].value < 0) {
-        lastBackJmpIndex = i;
-        break;
-    }
-};
-console.log(lastBackJmpIndex);
+const flippage = { jmp: 'nop', nop: 'jmp', acc: 'acc' };
+const flip = (item) => {
+    item.op = flippage[item.op];
+    item.flipped = true;
+}
 
 let i = 0;
 let total = 0;
-let switched = false;
+let flipped = null;
+let attempt = 1;
 while (i < items.length) {
-    if (items[i].done) {
-        console.log('bork');
-        break;
+    process.stdout.write(`\n${i} `);
+    if (items[i].done == attempt) {
+        process.stdout.write(`been here before `);
+        attempt++;
+        i = 0;
+        total = 0;
+        flip(flipped);
     }
-    items[i].done = true;
+
+    items[i].done = attempt;
     switch (items[i].op) {
         case 'acc':
+            process.stdout.write(`${total} `);
             total += items[i].value;
+            process.stdout.write(`${total} acc ${items[i].value}`);
             i++;
             break;
         case 'jmp':
-            if (i == lastBackJmpIndex && !switched) {
-                switched = true;
-                items[i].op = 'nop';
+            if (!items[i].flipped){
+                process.stdout.write(`flipping jpm to nop `);
+                flip(items[i]);
+                flipped = items[i];
+                items[i].done = 0;
             } else {
                 i += items[i].value;
             }
             break;
         case 'nop':
-            if (i + items[i].value > lastBackJmpIndex) {
-                switched = true;
-                items[i].op = 'jmp';
+            if (!items[i].flipped){
+                process.stdout.write(`flipping nop to jmp ${items[i].value}`);
+                flip(items[i]);
+                flipped = items[i];
+                items[i].done = 0;
             } else {
                 i++;
-                break;
             }
+            break;
         default:
             throw ('Unrecognised op:', items[i].op);
     }
