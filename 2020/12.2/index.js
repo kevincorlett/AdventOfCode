@@ -12,22 +12,7 @@ const hrParse = process.hrtime.bigint();
 const loc = { ew: 0, ns: 0 };
 let wp = { ew: 10, ns: 1 };
 
-const rotate = {
-    R: {
-        0: x => x,
-        90: x => ({ ns: -x.ew, ew: x.ns }),
-        180: x => ({ ns: -x.ns, ew: -x.ew}),
-        270: x => ({ ns: x.ew, ew: -x.ns})
-    },
-    L: {
-        0: x => x,
-        90: x => rotate.R[270](x),
-        180: x => rotate.R[180](x),
-        270: x => rotate.R[90](x)
-    }
-};
-
-const move = {
+const action = {
     N: x => wp.ns += x,
     E: x => wp.ew += x,
     S: x => wp.ns -= x,
@@ -35,6 +20,18 @@ const move = {
     F: x => {
         loc.ns += x * wp.ns;
         loc.ew += x * wp.ew;
+    },
+    R: {
+        0: () => 0,
+        90: () => wp = { ns: -wp.ew, ew: wp.ns },
+        180: () => wp = { ns: -wp.ns, ew: -wp.ew},
+        270: () => wp = { ns: wp.ew, ew: -wp.ns}
+    },
+    L: {
+        0: () => 0,
+        90: () => action.R[270](),
+        180: () => action.R[180](),
+        270: () => action.R[90]()
     }
 };
 
@@ -42,7 +39,7 @@ for (let i = 0; i < directions.length; i++) {
     switch (directions[i].cmd) {
         case 'L':
         case 'R':
-            wp = rotate[directions[i].cmd][directions[i].value](wp);
+            action[directions[i].cmd][directions[i].value]();
             break;
 
         case 'F':
@@ -50,7 +47,7 @@ for (let i = 0; i < directions.length; i++) {
         case 'E':
         case 'S':
         case 'W':
-            move[directions[i].cmd](directions[i].value);
+            action[directions[i].cmd](directions[i].value);
     }
 }
 
