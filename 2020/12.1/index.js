@@ -25,7 +25,8 @@ const move = {
     N: x => ns += x,
     E: x => ew += x,
     S: x => ns -= x,
-    W: x => ew -= x
+    W: x => ew -= x,
+    F: x => move[facing](x)
 };
 
 let facing = 'E';
@@ -37,9 +38,6 @@ for (let i = 0; i < directions.length; i++) {
             break;
 
         case 'F':
-            move[facing](directions[i].value);
-            break;
-
         case 'N':
         case 'E':
         case 'S':
