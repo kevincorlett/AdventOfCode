@@ -1,4 +1,3 @@
-const { timeLog } = require('console');
 const fs = require('fs');
 
 const hrstart = process.hrtime.bigint();
