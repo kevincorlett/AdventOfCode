@@ -9,6 +9,7 @@ const result = inputLines.reduce((x, y) => {
 
 console.log('Part 1:', result);
 
+//part 2
 //what beats what
 const beats = { A: 'C', B: 'A', C: 'B'};
 //what loses to what
