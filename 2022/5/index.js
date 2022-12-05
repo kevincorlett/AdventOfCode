@@ -1,45 +1,34 @@
+const { writer } = require('repl');
+
 const input = require('fs').readFileSync('input.txt').toString();
 const inputLines = input.split('\n');
 
 //part 1
-const stacks = getStacks();
+const stacks1 = getStacks();
+const stacks2 = getStacks();
 
-for (const m of getMatches()) {
+for (const m of input.matchAll(/^move\s(\d+)\sfrom\s(\d+)\sto\s(\d+)$/gm)) {
     const toMove = parseInt(m[1]);
     const from = parseInt(m[2]);
     const to = parseInt(m[3]);
 
     for (let i = 0; i < toMove; i++) {
-        stacks[to - 1].push(stacks[from - 1].pop());
+        stacks1[to - 1].push(stacks1[from - 1].pop());
     }
-}
-
-process.stdout.write('Part 1: ');
-stacks.forEach(x => {
-    process.stdout.write(x.length === 0 ? ' ' : x[x.length - 1]);
-});
-process.stdout.write('\n');
-
-
-
-//part 2
-const stacks2 = getStacks();
-
-for (const m of getMatches()) {
-    const toMove = parseInt(m[1]);
-    const from = parseInt(m[2]);
-    const to = parseInt(m[3]);
-
     stacks2[to - 1].push(...stacks2[from - 1].splice(stacks2[from - 1].length - toMove))
-
 }
-process.stdout.write('Part 2: ');
-stacks2.forEach(x => {
-    process.stdout.write(x.length === 0 ? ' ' : x[x.length - 1]);
-});
-process.stdout.write('\n');
 
+writeResult('Part 1', stacks1);
+writeResult('Part 2', stacks2);
 
+function writeResult(title, stacks){
+    process.stdout.write(title);
+    process.stdout.write(': ');
+    stacks.forEach(x => {
+        process.stdout.write(x.length === 0 ? ' ' : x[x.length - 1]);
+    });
+    process.stdout.write('\n');
+}
 
 function getStacks() {
     const stacks = [];
@@ -54,8 +43,4 @@ function getStacks() {
     stacks.forEach(x => x.reverse());
 
     return stacks;
-}
-
-function getMatches(){
-    return input.matchAll(/^move\s(\d+)\sfrom\s(\d+)\sto\s(\d+)$/gm);
 }
