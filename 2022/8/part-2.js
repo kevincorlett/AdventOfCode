@@ -1,10 +1,11 @@
 const input = require('fs').readFileSync('input.txt').toString();
 
 const inputLines = input.split('\n');
+
 let max = 0;
 for(let i=1;i<inputLines.length-1;i++){
     for (let j=1; j<inputLines[i].length-1;j++){
-        const tree = inputLines[i][j];
+
         let up = 1, down = 1, left = 1, right = 1;
 
         while (up < i && inputLines[i - up][j] < inputLines[i][j]) up++;
