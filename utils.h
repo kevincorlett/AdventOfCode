@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-//finds the next space or newline char.
-//Returns fileLength if no blank is found
+// finds the next space or newline char.
+// Returns fileLength if no blank is found
 int findNextBlank(char *file, long fileLength, int index)
 {
 
@@ -12,7 +13,7 @@ int findNextBlank(char *file, long fileLength, int index)
    return index;
 }
 
-//finds the instance of a particular char in a char array
+// finds the instance of a particular char in a char array
 int findChar(char *file, long fileLength, int index, char find, int skip)
 {
 
@@ -22,21 +23,19 @@ int findChar(char *file, long fileLength, int index, char find, int skip)
    return index;
 }
 
-
-//finds the next instance of a particular char in a char array
-//returns fileLength if not found
+// finds the next instance of a particular char in a char array
+// returns fileLength if not found
 int findNextChar(char *file, long fileLength, int index, char find)
 {
    return findChar(file, fileLength, index, find, 1);
 }
 
-//finds the previous instance of a particular char in a char array
-//returns -1 if not found
+// finds the previous instance of a particular char in a char array
+// returns -1 if not found
 int findPrevChar(char *file, long fileLength, int index, char find)
 {
    return findChar(file, fileLength, index, find, -1);
 }
-
 
 char *readStdIn(size_t *fileLength)
 {
@@ -66,6 +65,11 @@ int compareStr(char *str1, char *str2, int str1Start, int str2Start, int len)
    return 1;
 }
 
+/// @brief Parses an integer of known length
+/// @param str
+/// @param start
+/// @param end
+/// @return
 int parseInt(char *str, int start, int end)
 {
    int result = 0;
@@ -74,6 +78,22 @@ int parseInt(char *str, int start, int end)
       if (str[i] < '0' || str[i] > '9')
          return -1;
 
+      result = (10 * result) + str[i] - '0';
+   }
+
+   return result;
+}
+
+/// @brief Parses an integer of unknown length
+/// @param str
+/// @param start
+/// @param strLen
+/// @return
+int parseInt2(char *str, int strLen, int start)
+{
+   int result = 0;
+   for (int i = start; i < strLen && (str[i] >= '0' && str[i] <= '9'); i++)
+   {
       result = (10 * result) + str[i] - '0';
    }
 

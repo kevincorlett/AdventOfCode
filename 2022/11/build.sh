@@ -1,0 +1,1 @@
+gcc main.c -o mybin -I/opt/homebrew/include
