@@ -5,7 +5,7 @@
 #include <gmp.h>
 #include "../../utils.h"
 
-int MAX_ROUND = 1000;
+int MAX_ROUND = 10000;
 
 struct Operation
 {
@@ -144,6 +144,18 @@ long process(char *file, int fileLength)
    parseFile(file, fileLength, monkeys, &monkeyCount);
 
    printMonkeys(monkeys, monkeyCount);
+
+   //had to look it up in the end.  dang it!  https://www.youtube.com/watch?v=-cdn3QkR224
+   //multiply all the divisors together to get the modulus
+   mpz_t modulus;
+   mpz_init_set_si(modulus,1);
+   for(int i=0;i<monkeyCount;i++){
+      mpz_mul(modulus, modulus, monkeys[i].test.divisibleBy);
+   }
+
+   gmp_printf("Modulus=%Zd\n", modulus);
+
+
    for (int i=0;i<MAX_ROUND;i++){
       for (int j=0;j<monkeyCount;j++){
          monkeys[j].total += monkeys[j].itemCount;
@@ -164,6 +176,7 @@ long process(char *file, int fileLength)
             } else {
                throwTo = monkeys[j].test.ifFalseThrowTo;
             }
+            mpz_tdiv_r(newValue, newValue, modulus);
             mpz_init_set(monkeys[throwTo].items[monkeys[throwTo].itemCount++], newValue);
          }
       }
