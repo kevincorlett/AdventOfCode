@@ -1,6 +1,10 @@
 const input = require('fs').readFileSync('test.txt').toString();
+const bm = require('./big-math');
 
 const monkeys = input.split('\n\n').map(x => parseMonkeyStr(x));
+// console.log(JSON.stringify(monkeys, null, 2));
+// return;
+
 let hrstart, hrend;
 for (let i = 0; i < 1000; i++) {
 
@@ -10,8 +14,8 @@ for (let i = 0; i < 1000; i++) {
     hrstart = process.hrtime.bigint();
 
     for (let j = 0; j < monkeys.length; j++) {
-        monkeys[j].count += BigInt(monkeys[j].items.length);
-
+        monkeys[j].count = bm.add(monkeys[j].count, bm.number(monkeys[j].items.length));
+// console.log(monkeys[j].count);
         while (monkeys[j].items.length > 0) {
 
             const currentItem = monkeys[j].items.pop();
@@ -20,7 +24,7 @@ for (let i = 0; i < 1000; i++) {
             let newValue = processOperation(currentItem, monkeys[j].operation);
 
             let throwTo = -1;
-            if (newValue % monkeys[j].test.divisibleBy === 0n) {
+            if (bm.dividesBy(newValue, monkeys[j].test.divisibleBy)){
                 throwTo = monkeys[j].test.ifTrueThrowTo;
             } else {
                 throwTo = monkeys[j].test.ifFalseThrowTo;
@@ -35,23 +39,29 @@ for (let i = 0; i < 1000; i++) {
 }
 process.stdout.write('\n');
 
-const sorted = monkeys.sort((a, b) => b.count > a.count ? 1 : b.count < a.count ? -1 : 0);
+const sorted = monkeys.sort((a, b) => bm.gte(b.count, a.count));
 console.log(sorted.map(x => x.count));
-console.log('Part 2:', sorted[0].count * sorted[1].count);
+console.log('Part 2:', bm.multiply(sorted[0].count, sorted[1].count));
 
 function parseMonkeyStr(monkeyStr) {
 
     const id = parseInt(/(?<=Monkey\s)\d+(?=:)/m.exec(monkeyStr)[0]);
-    const startingItems = /(?<=Starting items:\s)[0-9, ]+/m.exec(monkeyStr)[0].split(', ').map(x => BigInt(x));
+    const items = /(?<=Starting items:\s)[0-9, ]+/m.exec(monkeyStr)[0].split(', ').map(x => bm.number(parseInt(x)));
     const parsedOp = /(?<=Operation: new = )(old|\d+) ([\+\-\*\/]) (old|\d+)/m.exec(monkeyStr);
     const operation = { left: parsedOp[1], op: parsedOp[2], right: parsedOp[3] };
+    if (operation.left !== 'old'){
+        operation.left = bm.number(parseInt(operation.left));
+    }
+    if (operation.right !== 'old'){
+        operation.right = bm.number(parseInt(operation.right));
+    }
     const test = {
-        divisibleBy: BigInt(/(?<=Test: divisible by )\d+/m.exec(monkeyStr)[0]),
+        divisibleBy: bm.number(parseInt((/(?<=Test: divisible by )\d+/m.exec(monkeyStr)[0]))),
         ifTrueThrowTo: parseInt(/(?<=If true: throw to monkey )\d+/m.exec(monkeyStr)[0]),
         ifFalseThrowTo: parseInt(/(?<=If false: throw to monkey )\d+/m.exec(monkeyStr)[0])
     };
 
-    return { id, items: startingItems, operation, test, count: 0n };
+    return { id, items, operation, test, count: bm.number(0) };
 }
 
 function processOperation(oldValue, operation) {
@@ -60,15 +70,15 @@ function processOperation(oldValue, operation) {
     //hrstart = process.hrtime.bigint();
 
 
-    const left = operation.left === 'old' ? oldValue : BigInt(operation.left);
-    const right = operation.right === 'old' ? oldValue : BigInt(operation.right);
+    const left = operation.left === 'old' ? oldValue : operation.left;
+    const right = operation.right === 'old' ? oldValue : operation.right;
 
-    let result = 0n;
+    let result = bm.number(0);
     switch (operation.op) {
-        case '+': result = left + right; break;
-        case '-': result = left - right; break;
-        case '/': result = left / right; break;
-        case '*': result = left * right; break;
+        case '+': result = bm.add(left, right); break;
+        case '-': result = bm.subtract(left, right); break;
+        case '/': result = bm.divide(left, right).div; break;
+        case '*': result = bm.multiply(left, right); break;
         default: throw new Error(`Failed to process operation ${operation.left} ${operation.op} ${operation.right} for value old=${oldValue}`);
     }
 
