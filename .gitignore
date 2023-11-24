@@ -2,3 +2,6 @@ sandbox
 main
 *.o
 .vscode
+
+**/bin/*
+**/obj/*
