@@ -1,0 +1,1 @@
+docker  run  -v ./:/src -w /src node:20-alpine node index.js
