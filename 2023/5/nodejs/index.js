@@ -1,51 +1,81 @@
 const fs = require('fs');
+const cp = require('node:child_process');
 
-const input = fs.readFileSync('input.txt');
+const inputFile = 'input.txt';
+const input = fs.readFileSync(inputFile);
 const inputLines = input.toString().split('\n');
 
-const seedMatches = inputLines[0].matchAll(/(\d+)/g);
-let unmapped = [...seedMatches].map(x => ({ seed: parseInt(x[0]) }));
-let mapped = [];
 
-for (let i=2;i<inputLines.length;i++){
+const mappers = [];
+
+for (let i = 2; i < inputLines.length; i++) {
 
     const mapNameMatches = [...inputLines[i].matchAll(/([^\-]+)-to-([^\-]+)\smap:/g)];
 
-    const mapFrom = mapNameMatches[0][1];
-    const mapTo = mapNameMatches[0][2];
+    const mapper = {
+        from: mapNameMatches[0][1],
+        to: mapNameMatches[0][2],
+    };
+    if (mappers.length > 0) {
+        mappers[mappers.length - 1].nextMapper = mapper;
+    }
+    mappers.push(mapper);
 
-    while (++i < inputLines.length && inputLines[i] !== ''){
-        if (unmapped.length === 0){
-            continue;
-        }
-
+    const mapEntries = [];
+    while (++i < inputLines.length && inputLines[i] !== '') {
 
         const mappings = inputLines[i].split(' ').map(x => parseInt(x));
-        mappings.push(mappings[0] - mappings[1]);
+        mappings.push(mappings[1] + mappings[2]); //end of the origin range
+        mappings.push(mappings[0] - mappings[1]); //diff between origin and dest
 
-        for(let j = unmapped.length-1; j > -1; j--){
-            
-            if (unmapped[j][mapFrom] >= mappings[1] && unmapped[j][mapFrom] < mappings[1] + mappings[2]){
-                unmapped[j][mapTo] = unmapped[j][mapFrom] + mappings[3];
-                mapped.push(unmapped[j]);
-                unmapped.splice(j, 1);
-            }
+        mapEntries.push(mappings);
+    }
+
+    mapper.map = x => {
+        const m = mapEntries.find(y => x >= y[1] && x < y[3]);
+        let mapped = x;
+        if (m) {
+            mapped += m[4];
         }
+        if (mapper.nextMapper) {
+            return mapper.nextMapper.map(mapped);
+        }
+        return mapped;
     }
-
-    for(const x of unmapped){
-        x[mapTo] = x[mapFrom];
-        mapped.push(x);
-    }
-    unmapped = mapped;
-    mapped = [];
-
 }
-const lowestLocation = unmapped.reduce((a,b) => a.location < b.location ? a : b);
-console.log('Part 1:', lowestLocation.location );
 
+const seedMatches = inputLines[0].matchAll(/(\d+)/g);
+const seedMatchesInt = [...seedMatches].map(x => parseInt(x[0]));
 
+Promise.all(seedMatchesInt.map(x => mapRange(x, 1)))
+    .then(results => {
+        const result = results
+            .reduce((a, b) => (a < b) ? a : b);
 
-let result = 0;
+        console.log('Part 1:', result);
+    })
+    .then(() => {
+        const promises = [];
+        for(let i=0;i<seedMatchesInt.length;i+=2){
+            promises.push(mapRange(seedMatchesInt[i], seedMatchesInt[i+1]));
+        }
+        return Promise.all(promises);
+    })
+    .then(results => {
+        const result = results
+            .reduce((a, b) => (a < b) ? a : b);
 
-console.log('Part 2:', result);
+        console.log('Part 2:', result);
+    });
+
+    //Encapsulates forking a child process to do the mapping.
+    //Returns a promise that resolves with the result of the mapping
+    function mapRange(seedStart, range){
+        return new Promise((res, rej) => {
+            const proc = cp.fork('map-range', [inputFile, `${seedStart}`, `${range}`], { stdio: 'pipe' });
+            proc.stdout.on('data', data => {
+                res(parseInt(data.toString()));
+            });
+        });
+    }
+
