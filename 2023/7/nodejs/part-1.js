@@ -30,14 +30,11 @@ entries.sort((a,b) => {
     return cmp;
 });
 
-entries.forEach((x,i) => x.ranking = i+1);
-
-let result = entries.reduce((a,b) => a + (b.ranking*b.bid), 0);
+let result = entries.reduce((a,b, i) => a + ((i+1)*b.bid), 0);
 
 console.log('Part 1:', result);
 
 function getHandType(hand) {
-    hand = hand.split('');
     const cardCounts = {};
     for (let i = 0; i < hand.length; i++) {
         if (cardCounts[hand[i]]) {
