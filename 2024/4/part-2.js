@@ -11,21 +11,20 @@ const input = readFile('input.txt');
 const chars = input.split('\n').map(x => x.split(''));
 const width = chars[0].length, height = chars.length;
 
-let result = 0;
-
+const word = 'MAS';
+const middle = Math.floor(word.length / 2);
 const adjacents = [[-1,-1], [-1,1], [1, 1], [1, -1]];
+let result = 0;
 for (let x=1;x<width-1;x++){
     for(let y=1;y<height-1;y++){
-        if (chars[y][x] === 'A'){
-            //found A, now look around for the X-MAS
-            const found = adjacents
-                            .filter(a => chars[y+a[0]][x+a[1]] === 'S' && chars[y-a[0]][x-a[1]] === 'M')
-                            .length === 2;
-
-            if (found){
-                result++;
-            }
-
+        let found = true;
+        for (let n = 0; found && n <= middle; n++){
+            found = adjacents
+                .filter(a => chars[y + n*a[0]][x + n*a[1]] === word[middle-n] && chars[y - n*a[0]][x - n*a[1]] === word[middle+n])
+                .length > 1;
+        }
+        if (found){
+            result++;
         }
     }
 }
