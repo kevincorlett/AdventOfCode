@@ -6,7 +6,7 @@ function readFile(filename){
     return fs.readFileSync(filePath).toString();
 }
 
-const input = readFile('input-3.txt');
+const input = readFile('input.txt');
 
 const matches = [...input.matchAll(/mul\((\d+)\,(\d+)\)/g)];
 
