@@ -17,7 +17,7 @@ int findNextBlank(char *file, long fileLength, int index)
 int findChar(char *file, long fileLength, int index, char find, int skip)
 {
 
-   while (file[index] != find && index < fileLength)
+   while (index > -1 && index < fileLength && file[index] != find)
       index += skip;
 
    return index;
