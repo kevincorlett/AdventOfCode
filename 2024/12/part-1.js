@@ -52,10 +52,7 @@ function mapGroup(row, col, groupId, char){
 
 for (let row=0; row<gridHeight; row++){
     for (let col=0; col<gridWidth; col++){
-        
-        if (!cells[`${row},${col}`]){
             mapGroup(row, col);
-        }
     }
 }
 
