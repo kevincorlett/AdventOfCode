@@ -1,0 +1,2 @@
+pattern A (vertically aligned nonsense):  11,112,213 
+pattern B (horizontally aligned nonsense): 89,192,295
