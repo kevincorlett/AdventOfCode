@@ -1,14 +1,3 @@
-// const _primes = [2];
-// function getPrimes(max){
-    
-//     for (let i=_primes[_primes.length-1] + 1; i < max; i++){
-//         if (!_primes.some(x => i%x === 0)){
-//             _primes.push(i);
-//         }
-//     }
-
-//     return _primes.filter(x => x <= max);
-// }
 const _primes = [2,3];
 
 //the 1-based index in the _primes array of the largest prime that is equal to
