@@ -1,9 +1,10 @@
 const fs = require('fs');
 const path = require('path');
+const { EOL } = require("os");
 const inputFile='input.txt';
 const filePath = path.resolve(__dirname, inputFile);
 const input = fs.readFileSync(filePath).toString();
-const lines = input.split('\r\n').map(x => x.split(''));
+const lines = input.split(EOL).map(x => x.split(''));
 
 const cache = {};
 
